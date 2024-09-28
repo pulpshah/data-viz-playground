@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/data_playground_demo",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/data_playground_demo/(.*)",
+      "destination": "/$1"
+    }
+  ]
+}
