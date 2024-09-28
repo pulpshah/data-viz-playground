@@ -1,0 +1,13 @@
+[
+    { "year": 2000, "population": 500 },
+    { "year": 2001, "population": 520 },
+    { "year": 2002, "population": 540 },
+    { "year": 2003, "population": 560 },
+    { "year": 2004, "population": 580 },
+    { "year": 2005, "population": 600 },
+    { "year": 2006, "population": 620 },
+    { "year": 2007, "population": 640 },
+    { "year": 2008, "population": 660 },
+    { "year": 2009, "population": 680 },
+    { "year": 2010, "population": 700 }
+  ]

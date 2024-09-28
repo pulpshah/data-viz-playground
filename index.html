@@ -1,0 +1,333 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Data Visualization Test Environment</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Basic styles */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden; /* Prevent scrolling */
+    }
+    #visualization-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-color: #fff; /* Default background color */
+    }
+    /* Header styles */
+    #header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      background-color: #f0f0f0;
+      color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+      padding: 10px 20px; /* Left and right padding */
+      box-sizing: border-box;
+    }
+    #header.active {
+      background-color: #aaa; /* Active state color */
+      color: #fff;
+    }
+    #header:hover {
+      background-color: #000;
+      color: #fff;
+    }
+    #header-content {
+      text-align: center;
+    }
+    #header-content h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: normal;
+    }
+    #header-content p {
+      margin: 0;
+      font-size: 12px;
+    }
+    /* Visualization container styles */
+    .visualization {
+      position: absolute;
+      top: 70px; /* Below the header with margin */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 800px; /* Bounding box for mobile friendliness */
+      height: calc(100% - 220px); /* Leave space for header, footer, and margins */
+      margin-bottom: 20px; /* Bottom margin */
+      display: none; /* Hide by default */
+    }
+    /* Ensure canvas and SVG fill their parent containers */
+    .visualization canvas,
+    .visualization svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    /* Caption/Notes section */
+    #caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 110px; /* Increased height */
+      background-color: #000;
+      color: #ccc;
+      display: flex;
+      padding: 10px 20px; /* Left and right padding */
+      box-sizing: border-box;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+      align-items: center;
+    }
+    #caption.active {
+      background-color: #555; /* Active state color */
+      color: #fff;
+    }
+    #caption:hover {
+      background-color: #fff;
+      color: #000;
+    }
+    /* Caption content divided into two columns */
+    #caption-content {
+      display: flex;
+      justify-content: space-between;
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    #caption-content .column {
+      flex: 1;
+    }
+    /* Floating Action Button (FAB) */
+    #fab {
+      position: fixed;
+      bottom: 130px; /* Above the caption */
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      background-color: #6200ee;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 24px;
+      text-align: center;
+      line-height: 56px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+    /* Code Button */
+    #code-button {
+      position: fixed;
+      top: 80px; /* Below the header */
+      left: 20px;
+      width: 56px;
+      height: 56px;
+      background-color: #6200ee;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 24px;
+      text-align: center;
+      line-height: 56px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+    /* Visualization Menu */
+    #visualization-menu {
+      position: fixed;
+      bottom: 200px; /* Above the FAB */
+      right: 20px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      display: none; /* Hidden by default */
+      z-index: 999;
+    }
+    /* Code Menu */
+    #code-menu {
+      position: fixed;
+      top: 150px; /* Below the code button */
+      left: 20px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      display: none; /* Hidden by default */
+      z-index: 999;
+    }
+    #visualization-menu ul,
+    #code-menu ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    #visualization-menu li,
+    #code-menu li {
+      padding: 10px 20px;
+      cursor: pointer;
+      position: relative;
+      text-align: right; /* Align menu items to the right */
+    }
+    #visualization-menu li:hover,
+    #code-menu li:hover {
+      background-color: #f0f0f0;
+    }
+    /* Submenu styles */
+    .submenu {
+      display: none;
+      position: absolute;
+      right: 100%; /* Open to the left */
+      top: 0;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      z-index: 998;
+      width: 200px;
+    }
+    .submenu li {
+      padding: 10px 20px;
+    }
+    li:hover > .submenu {
+      display: block;
+    }
+    /* Show the active visualization */
+    .active {
+      display: block !important;
+    }
+    /* Modal for Code/Data */
+    #modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 9999;
+      display: none;
+    }
+    #modal-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%;
+      max-width: 600px;
+      max-height: 80%;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      overflow: auto;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    #modal-box pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    #modal-box #close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    #modal-box #copy-button {
+      position: absolute;
+      top: 10px;
+      right: 40px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    /* Mobile adjustments */
+    @media (max-width: 600px) {
+      .visualization {
+        max-width: 100%;
+      }
+      #header, #caption {
+        height: auto;
+        padding: 15px 20px;
+      }
+      #fab {
+        bottom: 150px;
+      }
+      #visualization-menu {
+        bottom: 230px;
+      }
+      #code-button {
+        top: 80px;
+      }
+      #code-menu {
+        top: 150px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="visualization-container">
+    <!-- Header -->
+    <div id="header">
+      <div id="header-content">
+        <h1 id="graph-title">Data Visualization</h1>
+        <p id="data-source">Data Source: N/A</p>
+      </div>
+    </div>
+    <!-- Visualization containers will be dynamically generated -->
+    <!-- Caption/Notes section -->
+    <div id="caption">
+      <div id="caption-content">
+        <div class="column" id="caption-col1">
+          <!-- Column 1 content -->
+        </div>
+        <div class="column" id="caption-col2">
+          <!-- Column 2 content -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Action Button -->
+  <div id="fab">☰</div>
+
+  <!-- Code Button -->
+  <div id="code-button">{ }</div>
+
+  <!-- Visualization Menu -->
+  <div id="visualization-menu">
+    <ul id="menu-list">
+      <!-- Menu items will be dynamically generated -->
+    </ul>
+  </div>
+
+  <!-- Code Menu -->
+  <div id="code-menu">
+    <ul>
+      <li id="see-code">See Code</li>
+      <li id="see-data">See Data</li>
+    </ul>
+  </div>
+
+  <!-- Modal for Code/Data -->
+  <div id="modal-overlay">
+    <div id="modal-box">
+      <span id="close-button">✖</span>
+      <span id="copy-button">📋</span>
+      <pre id="display-content"></pre>
+    </div>
+  </div>
+
+  <!-- Include the main.js script as a module -->
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
