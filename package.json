@@ -1,6 +1,7 @@
 {
   "name": "dataviz",
   "version": "1.0.0",
+  "main": "index.html",
   "scripts": {
     "start": "parcel index.html --open",
     "build": "parcel build index.html --public-url ./ --no-source-maps"
@@ -14,6 +15,6 @@
     "three": "^0.169.0"
   },
   "devDependencies": {
-    "parcel": "^2.9.3"
+    "parcel": "^2.12.0"
   }
 }
